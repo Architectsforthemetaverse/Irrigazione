@@ -90,7 +90,10 @@ async def create_day(day: IrrigationDay):
             if not schedule.get('id'):
                 schedule['id'] = str(uuid.uuid4())
         
-        await db.days.insert_one(day_dict)
+        # Insert into database
+        result = await db.days.insert_one(day_dict)
+        
+        # Return the created day without MongoDB ObjectId
         return {"message": "Day created successfully", "day": day_dict}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
