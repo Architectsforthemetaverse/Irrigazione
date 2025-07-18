@@ -322,8 +322,8 @@ function App() {
 
       {/* Add Schedule Modal */}
       {showAddSchedule && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay" onClick={() => setShowAddSchedule(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Add New Schedule</h3>
               <button 
@@ -406,8 +406,8 @@ function App() {
 
       {/* Add Day Modal */}
       {showAddDay && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay" onClick={() => setShowAddDay(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Add New Day</h3>
               <button 
