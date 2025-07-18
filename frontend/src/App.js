@@ -151,6 +151,34 @@ function App() {
     }
   };
 
+  const handleDeleteSchedule = async (scheduleId) => {
+    if (!selectedDay || !confirm('Are you sure you want to delete this schedule?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/days/${selectedDay.id}/schedules/${scheduleId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete schedule');
+      }
+
+      await fetchDays();
+      
+      // Update selected day with new data
+      const dayResponse = await fetch(`${API_BASE_URL}/api/days/${selectedDay.id}`);
+      if (dayResponse.ok) {
+        const updatedDay = await dayResponse.json();
+        setSelectedDay(updatedDay);
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error deleting schedule:', err);
+    }
+  };
+
   const handleDeleteDay = async (dayId) => {
     if (!confirm('Are you sure you want to delete this entire day and all its schedules? This action cannot be undone.')) {
       return;
