@@ -119,6 +119,8 @@ async def update_day(day_id: str, day: IrrigationDay):
             raise HTTPException(status_code=404, detail="Day not found")
         
         return {"message": "Day updated successfully", "day": day_dict}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
