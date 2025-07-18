@@ -107,6 +107,13 @@ body {
   margin: 0;
 }
 
+.day-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .day-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
