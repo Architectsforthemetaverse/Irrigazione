@@ -172,6 +172,8 @@ async def update_schedule(day_id: str, schedule_id: str, schedule: IrrigationAct
             raise HTTPException(status_code=404, detail="Day or schedule not found")
         
         return {"message": "Schedule updated successfully", "schedule": schedule_dict}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
