@@ -287,12 +287,20 @@ function App() {
                   ← Back to Days
                 </button>
                 <h2>{selectedDay.name}</h2>
-                <button 
-                  onClick={() => setShowAddSchedule(true)} 
-                  className="btn btn-primary"
-                >
-                  + Add Schedule
-                </button>
+                <div className="day-actions">
+                  <button 
+                    onClick={() => setShowAddSchedule(true)} 
+                    className="btn btn-primary"
+                  >
+                    + Add Schedule
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteDay(selectedDay.id)} 
+                    className="btn btn-danger"
+                  >
+                    🗑️ Delete Day
+                  </button>
+                </div>
               </div>
 
               <div className="schedules-container">
