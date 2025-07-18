@@ -82,19 +82,36 @@ async def get_day(day_id: str):
 async def create_day(day: IrrigationDay):
     """Create a new irrigation day"""
     try:
-        day.id = str(uuid.uuid4())
-        day_dict = day.dict()
+        # Create day ID
+        day_id = str(uuid.uuid4())
         
-        # Ensure each schedule has an ID
-        for schedule in day_dict.get('schedules', []):
-            if not schedule.get('id'):
-                schedule['id'] = str(uuid.uuid4())
+        # Create day dictionary manually to avoid Pydantic serialization issues
+        day_data = {
+            "id": day_id,
+            "day_number": day.day_number,
+            "name": day.name,
+            "schedules": [],
+            "is_active": day.is_active if day.is_active is not None else True
+        }
+        
+        # Handle schedules if provided
+        if day.schedules:
+            for schedule in day.schedules:
+                schedule_data = {
+                    "id": str(uuid.uuid4()),
+                    "time": schedule.time,
+                    "action": schedule.action,
+                    "sectors": schedule.sectors if schedule.sectors else [],
+                    "main_valves": schedule.main_valves if schedule.main_valves else [],
+                    "action_type": schedule.action_type
+                }
+                day_data["schedules"].append(schedule_data)
         
         # Insert into database
-        result = await db.days.insert_one(day_dict)
+        result = await db.days.insert_one(day_data)
         
-        # Return the created day without MongoDB ObjectId
-        return {"message": "Day created successfully", "day": day_dict}
+        # Return the created day
+        return {"message": "Day created successfully", "day": day_data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
