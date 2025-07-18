@@ -67,8 +67,14 @@ async def get_day(day_id: str):
         day = await db.days.find_one({"id": day_id})
         if not day:
             raise HTTPException(status_code=404, detail="Day not found")
-        day['_id'] = str(day['_id'])
-        return day
+        
+        # Remove MongoDB ObjectId and convert to dict properly
+        day_dict = dict(day)
+        if '_id' in day_dict:
+            del day_dict['_id']
+        return day_dict
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
