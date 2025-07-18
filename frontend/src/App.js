@@ -97,11 +97,15 @@ function App() {
         action_type: 'open'
       });
       setShowAddSchedule(false);
+      
+      // Refresh the days data first
       await fetchDays();
       
-      // Update selected day with new data
-      const updatedDay = days.find(d => d.id === selectedDay.id);
-      if (updatedDay) {
+      // Then update selected day with fresh data from the refreshed days array
+      // Use a callback to ensure we get the latest days state
+      const response = await fetch(`${API_BASE_URL}/api/days/${selectedDay.id}`);
+      if (response.ok) {
+        const updatedDay = await response.json();
         setSelectedDay(updatedDay);
       }
     } catch (err) {
