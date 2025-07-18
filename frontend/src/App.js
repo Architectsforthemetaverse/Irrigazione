@@ -151,30 +151,26 @@ function App() {
     }
   };
 
-  const handleDeleteSchedule = async (scheduleId) => {
-    if (!selectedDay || !confirm('Are you sure you want to delete this schedule?')) {
+  const handleDeleteDay = async (dayId) => {
+    if (!confirm('Are you sure you want to delete this entire day and all its schedules? This action cannot be undone.')) {
       return;
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/days/${selectedDay.id}/schedules/${scheduleId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/days/${dayId}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete schedule');
+        throw new Error('Failed to delete day');
       }
 
+      // Navigate back to day selection and refresh the list
+      setSelectedDay(null);
       await fetchDays();
-      
-      // Update selected day with new data
-      const updatedDay = days.find(d => d.id === selectedDay.id);
-      if (updatedDay) {
-        setSelectedDay(updatedDay);
-      }
     } catch (err) {
       setError(err.message);
-      console.error('Error deleting schedule:', err);
+      console.error('Error deleting day:', err);
     }
   };
 
