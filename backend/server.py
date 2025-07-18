@@ -51,8 +51,11 @@ async def get_all_days():
         days_cursor = db.days.find({})
         days = []
         async for day in days_cursor:
-            day['_id'] = str(day['_id'])
-            days.append(day)
+            # Remove MongoDB ObjectId and convert to dict properly
+            day_dict = dict(day)
+            if '_id' in day_dict:
+                del day_dict['_id']
+            days.append(day_dict)
         return {"days": days}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
