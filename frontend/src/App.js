@@ -102,10 +102,9 @@ function App() {
       await fetchDays();
       
       // Then update selected day with fresh data from the refreshed days array
-      // Use a callback to ensure we get the latest days state
-      const response = await fetch(`${API_BASE_URL}/api/days/${selectedDay.id}`);
-      if (response.ok) {
-        const updatedDay = await response.json();
+      const dayResponse = await fetch(`${API_BASE_URL}/api/days/${selectedDay.id}`);
+      if (dayResponse.ok) {
+        const updatedDay = await dayResponse.json();
         setSelectedDay(updatedDay);
       }
     } catch (err) {
