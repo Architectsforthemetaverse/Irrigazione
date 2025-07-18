@@ -329,6 +329,8 @@ body {
   justify-content: center;
   z-index: 1000;
   padding: 16px;
+  /* Ensure pointer events don't interfere with modal content */
+  pointer-events: auto;
 }
 
 .modal {
@@ -339,6 +341,10 @@ body {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  /* Important: Ensure modal content accepts all pointer events */
+  pointer-events: auto;
+  position: relative;
+  z-index: 1001;
 }
 
 .modal-header {
