@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Irrigazione bocchette</title>
+  <meta name="theme-color" content="#eef2ec">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="irrigazione.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>Irrigazione</h1>
+        <div class="water-status water-status-off" id="waterStatus">
+          <span class="status-led"></span>
+          <span>ACQUA NELL'IMPIANTO</span>
+        </div>
+        <p class="cycle-complete" id="cycleComplete" hidden>CICLO COMPLETATO</p>
+        <p class="pressure-warning" id="pressureWarning" hidden>IMPIANTO SOTTO PRESSIONE</p>
+        <p id="summary">Caricamento...</p>
+        <p class="sync-status" id="syncStatus">Sync locale</p>
+      </div>
+      <button class="reset-button" id="historyButton" type="button">STORICO</button>
+    </header>
+
+    <section class="map-stage" aria-label="Mappa irrigazione">
+      <div class="map-frame" id="mapFrame">
+        <img class="map-image" src="mappa-irrigazione.svg" alt="Mappa irrigazione agricola">
+        <div class="tap-layer" id="tapLayer" aria-label="Bocchette cliccabili"></div>
+      </div>
+    </section>
+
+    <section class="legend" aria-label="Legenda stati">
+      <span><i class="swatch swatch-open"></i>Aperta</span>
+      <span><i class="swatch swatch-due"></i>Da aprire</span>
+      <span><i class="swatch swatch-fresh"></i>Irrigata</span>
+    </section>
+  </main>
+
+  <dialog class="valve-sheet" id="valveSheet">
+    <form method="dialog" class="sheet-card">
+      <div class="sheet-head">
+        <div>
+          <h2 id="sheetTitle">Bocchetta</h2>
+          <p id="sheetStatus">Da aprire</p>
+        </div>
+        <button class="close-button" value="close" aria-label="Chiudi scheda" type="submit">&times;</button>
+      </div>
+
+      <label class="note-field">
+        Nota
+        <textarea id="valveNote" rows="4" placeholder="Nota opzionale"></textarea>
+      </label>
+
+      <div class="sheet-actions">
+        <button class="action-toggle" id="toggleValve" type="button">APRI</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="history-sheet" id="historySheet">
+    <form method="dialog" class="sheet-card">
+      <div class="sheet-head">
+        <div>
+          <h2>Storico</h2>
+          <p id="historyCount">Nessun movimento</p>
+        </div>
+        <button class="close-button" value="close" aria-label="Chiudi storico" type="submit">&times;</button>
+      </div>
+
+      <label class="note-field">
+        Operatore
+        <input id="operatorName" type="text" autocomplete="name" placeholder="Nome di chi apre/chiude">
+      </label>
+
+      <div class="history-list" id="historyList"></div>
+    </form>
+  </dialog>
+
+  <script src="sync-config.js"></script>
+  <script src="irrigazione.js"></script>
+  <script>
+    if ("serviceWorker" in navigator && location.protocol === "https:") {
+      navigator.serviceWorker.register("sw.js");
+    }
+  </script>
+</body>
+</html>
