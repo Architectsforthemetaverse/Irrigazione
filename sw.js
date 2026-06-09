@@ -1,4 +1,4 @@
-const CACHE_NAME = "irrigazione-v6-neon-3";
+const CACHE_NAME = "irrigazione-v6-neon-4";
 const ASSETS = [
   "./",
   "./index.html",
