@@ -416,21 +416,16 @@ function pullSyncState() {
       return;
     }
 
-    if (isRemoteNewer(data.updated_at)) {
-      valves = DEFAULT_VALVES.map((base) => ({
-        ...base,
-        ...(data.valves.find((item) => item.id === base.id) || {})
-      }));
-      updatedAt = data.updated_at;
-      window.localStorage.setItem(UPDATED_AT_KEY, updatedAt);
-      historyEvents = Array.isArray(data.history) ? data.history : historyEvents;
-      saveState({ push: false, keepUpdatedAt: true });
-      render();
-      setSyncStatus("Aggiornato da Sheet");
-      return;
-    }
-
-    setSyncStatus("Sheet aggiornato");
+    valves = DEFAULT_VALVES.map((base) => ({
+      ...base,
+      ...(data.valves.find((item) => item.id === base.id) || {})
+    }));
+    updatedAt = data.updated_at || new Date().toISOString();
+    window.localStorage.setItem(UPDATED_AT_KEY, updatedAt);
+    historyEvents = Array.isArray(data.history) ? data.history : historyEvents;
+    saveState({ push: false, keepUpdatedAt: true });
+    render();
+    setSyncStatus("Aggiornato da Sheet");
   }).catch(() => {
     setSyncStatus("Sync non riuscita");
   });
