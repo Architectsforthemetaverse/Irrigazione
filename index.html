@@ -4,15 +4,29 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Irrigazione bocchette</title>
-  <meta name="theme-color" content="#eef2ec">
+  <meta name="theme-color" content="#061511">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="irrigazione.css">
+  <link rel="stylesheet" href="irrigazione.css?v=neon-1">
+  <link rel="stylesheet" href="neon.css?v=1">
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
-      <div>
-        <h1>Irrigazione</h1>
+      <button class="menu-button" type="button" aria-label="Menu">
+        <span></span>
+      </button>
+      <h1>Irrigazione</h1>
+      <button class="reset-button" id="historyButton" type="button">
+        <span class="history-icon"></span>
+        STORICO
+      </button>
+    </header>
+
+    <section class="status-card" aria-label="Stato irrigazione">
+      <div class="water-gauge" aria-hidden="true">
+        <span></span>
+      </div>
+      <div class="status-copy">
         <div class="water-status water-status-off" id="waterStatus">
           <span class="status-led"></span>
           <span>ACQUA NELL'IMPIANTO</span>
@@ -22,8 +36,13 @@
         <p id="summary">Caricamento...</p>
         <p class="sync-status" id="syncStatus">Sync locale</p>
       </div>
-      <button class="reset-button" id="historyButton" type="button">STORICO</button>
-    </header>
+      <div class="pressure-card" aria-label="Pressione">
+        <span class="pulse-icon"></span>
+        <span class="pressure-label">PRESSIONE</span>
+        <strong>2.4</strong>
+        <span class="pressure-unit">bar</span>
+      </div>
+    </section>
 
     <section class="map-stage" aria-label="Mappa irrigazione">
       <div class="map-frame" id="mapFrame">
@@ -80,8 +99,9 @@
   </dialog>
 
   <script src="sync-config.js?v=20260609-3"></script>
-  <script src="irrigazione.js?v=20260609-5"></script>
+  <script src="irrigazione.js?v=20260609-6"></script>
   <script src="history-all-valves.js"></script>
+  <script src="ui-neon.js?v=1"></script>
   <script>
     if ("serviceWorker" in navigator && location.protocol === "https:") {
       navigator.serviceWorker.register("sw.js");
