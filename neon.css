@@ -1,5 +1,6 @@
 :root {
   color-scheme: dark;
+  --cycle-progress: 0%;
   --bg: #04100e;
   --text: #f4fff7;
   --muted: #a9b8b0;
@@ -161,9 +162,7 @@ h1::after {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background:
-    radial-gradient(circle, rgba(238, 255, 248, 0.92) 0 18%, transparent 19%),
-    conic-gradient(var(--mint) 0 78%, rgba(82, 255, 205, 0.14) 78% 100%);
+  background: conic-gradient(var(--mint) 0 var(--cycle-progress), rgba(82, 255, 205, 0.14) var(--cycle-progress) 100%);
   box-shadow: 0 0 26px rgba(54, 236, 197, 0.24);
   position: relative;
 }
@@ -178,11 +177,24 @@ h1::after {
 
 .water-gauge span {
   position: relative;
-  width: 20px;
-  height: 28px;
-  border-radius: 50% 50% 50% 8px;
-  background: linear-gradient(#fff, #c8dad2);
+  z-index: 1;
+  width: 24px;
+  height: 32px;
+  border-radius: 50% 50% 50% 10px;
+  background: linear-gradient(145deg, #ffffff 0%, #d8f5ec 48%, #9ac7bc 100%);
   transform: rotate(45deg);
+  box-shadow: inset -5px -5px 9px rgba(0, 0, 0, 0.18), 0 0 18px rgba(231, 255, 247, 0.35);
+}
+
+.water-gauge span::after {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: 8px;
+  height: 13px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.58);
 }
 
 .status-copy {
