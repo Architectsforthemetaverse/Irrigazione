@@ -505,8 +505,9 @@ function todayKey() {
 }
 
 function daysSince(dateKey) {
+  const normalizedDateKey = normalizeDateKey(dateKey);
   const today = new Date(`${todayKey()}T00:00:00`);
-  const date = new Date(`${dateKey}T00:00:00`);
+  const date = new Date(`${normalizedDateKey}T00:00:00`);
   return Math.max(0, Math.floor((today - date) / 86400000));
 }
 
@@ -559,5 +560,13 @@ function dateKeyFromDate(date) {
 }
 
 function dateKeyFromIso(value) {
-  return dateKeyFromDate(new Date(value));
+  return normalizeDateKey(value);
+}
+
+function normalizeDateKey(value) {
+  if (!value) return "";
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const date = new Date(value);
+  if (!Number.isNaN(date.getTime())) return dateKeyFromDate(date);
+  return String(value).slice(0, 10);
 }
