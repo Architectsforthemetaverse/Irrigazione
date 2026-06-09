@@ -144,7 +144,7 @@ h1::after {
 
 .status-card {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr) 108px;
+  grid-template-columns: 96px minmax(0, 1fr);
   gap: 14px;
   align-items: center;
   min-height: 132px;
@@ -252,47 +252,6 @@ h1::after {
 
 .cycle-complete {
   color: var(--fresh);
-}
-
-.pressure-card {
-  display: grid;
-  grid-template-columns: 34px 1fr;
-  gap: 0 8px;
-  align-items: center;
-  padding-left: 14px;
-  border-left: 1px solid rgba(135, 232, 149, 0.18);
-}
-
-.pulse-icon {
-  grid-row: span 3;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: rgba(91, 221, 73, 0.18);
-  position: relative;
-}
-
-.pulse-icon::before {
-  content: "~";
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: #adff94;
-  font-size: 28px;
-  font-weight: 900;
-}
-
-.pressure-label,
-.pressure-unit {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.pressure-card strong {
-  color: #fff;
-  font-size: 28px;
-  line-height: 1;
 }
 
 .map-stage {
@@ -460,7 +419,4 @@ input {
     width: 66px;
   }
 
-  .pressure-card {
-    display: none;
-  }
 }
