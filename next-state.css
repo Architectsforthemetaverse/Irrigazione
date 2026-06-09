@@ -48,3 +48,19 @@
 .status-card .sync-status {
   font-size: 10px;
 }
+
+.water-gauge span {
+  width: 26px;
+  height: 36px;
+  border-radius: 0;
+  background: radial-gradient(circle at 38% 25%, #ffffff 0 12%, #dff9f2 28%, #b9e3da 58%, #79aaa0 100%);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 52 72' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M26 2C41 20 50 34 50 48C50 62 39.5 70 26 70C12.5 70 2 62 2 48C2 34 11 20 26 2Z' fill='black'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 52 72' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M26 2C41 20 50 34 50 48C50 62 39.5 70 26 70C12.5 70 2 62 2 48C2 34 11 20 26 2Z' fill='black'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.water-gauge span::after {
+  top: 9px;
+  left: 7px;
+  width: 8px;
+  height: 10px;
+}
