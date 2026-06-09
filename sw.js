@@ -1,7 +1,8 @@
-const CACHE_NAME = "irrigazione-v4";
+const CACHE_NAME = "irrigazione-v5";
 const ASSETS = [
   "./",
   "./index.html",
+  "./irrigazione.html",
   "./irrigazione.css",
   "./irrigazione.js",
   "./history-all-valves.js",
