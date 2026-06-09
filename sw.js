@@ -1,11 +1,13 @@
-const CACHE_NAME = "irrigazione-v6-neon-4";
+const CACHE_NAME = "irrigazione-v6-neon-5";
 const ASSETS = [
   "./",
   "./index.html",
   "./irrigazione.css",
   "./neon.css",
+  "./next-state.css",
   "./irrigazione.js",
   "./history-all-valves.js",
+  "./next-state.js",
   "./ui-neon.js",
   "./sync-config.js",
   "./mappa-irrigazione.svg",
