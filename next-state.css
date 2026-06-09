@@ -36,3 +36,15 @@
   background: linear-gradient(135deg, rgba(255, 216, 77, 0.95), rgba(164, 101, 0, 0.95));
   color: #160f00;
 }
+
+.status-card .water-status {
+  font-size: clamp(10px, 2.5vw, 13px);
+}
+
+.status-card #summary {
+  font-size: clamp(12px, 3.7vw, 18px);
+}
+
+.status-card .sync-status {
+  font-size: 10px;
+}
