@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reset storico irrigazione</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #eef2ec;
+      color: #18231d;
+      padding: 24px;
+    }
+
+    main {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      background: #263028;
+      color: white;
+      font-size: 20px;
+      font-weight: 800;
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .status {
+      margin-top: 18px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Reset storico 09/06/2026</h1>
+    <p>Questa pagina ripulisce il foglio e imposta il giro corretto:</p>
+    <p>Bocchette 1, 3 e 5 aperte da Angelo dalle 15:00 alle 19:00. GA, GN e BP restano aperte.</p>
+    <button id="resetButton" type="button">RIPULISCI E IMPOSTA</button>
+    <p class="status" id="status">Pronto</p>
+  </main>
+
+  <script>
+    const ENDPOINT = "https://script.google.com/macros/s/AKfycbwzkbkjM0yJLmvZU1VBm8_RjrCo0dM4HIhAXICma_8Ef-hklnP61YTieya2iYQuRUML/exec";
+    const RESET_DATE = "2026-06-09";
+    const OPENED_AT = "2026-06-09T15:00:00+02:00";
+    const CLOSED_AT = "2026-06-09T19:00:00+02:00";
+    const DEFAULT_FREQUENCY_DAYS = 7;
+    const IRRIGATED_IDS = ["1", "3", "5"];
+    const GENERAL_IDS = ["GA", "GN", "BP"];
+    const BASE_VALVES = [
+      { id: "1", x: 1465.724, y: 723.055 },
+      { id: "2", x: 1465.724, y: 921.875 },
+      { id: "3", x: 1116.411, y: 932.908 },
+      { id: "4", x: 1176.203, y: 1064.653 },
+      { id: "5", x: 889.405, y: 1048.438 },
+      { id: "6", x: 766.205, y: 897.236 },
+      { id: "7", x: 638.482, y: 1048.843 },
+      { id: "8", x: 653.058, y: 669.844 },
+      { id: "9", x: 537.546, y: 893.588 },
+      { id: "10", x: 552.601, y: 196.738 },
+      { id: "11", x: 286.98, y: 197.257 },
+      { id: "12", x: 287.475, y: 434.73 },
+      { id: "13", x: 287.475, y: 620.948 },
+      { id: "14", x: 287.475, y: 964.51 },
+      { id: "15", x: 288.488, y: 1419.619 },
+      { id: "16", x: 288.488, y: 1724.861 },
+      { id: "17", x: 537.384, y: 1724.861 },
+      { id: "BP", x: 271.523, y: 789.238 },
+      { id: "GA", x: 87.357, y: 93.585 },
+      { id: "GN", x: 66.308, y: 1600.179 }
+    ];
+
+    function buildValves() {
+      return BASE_VALVES.map((valve) => {
+        const isGeneral = GENERAL_IDS.includes(valve.id);
+        return {
+          ...valve,
+          frequenza_giorni: DEFAULT_FREQUENCY_DAYS,
+          ultima_irrigazione: IRRIGATED_IDS.includes(valve.id) ? RESET_DATE : null,
+          aperta: isGeneral,
+          manual: isGeneral,
+          aperta_da: isGeneral ? OPENED_AT : null,
+          note: ""
+        };
+      });
+    }
+
+    function buildHistory() {
+      return IRRIGATED_IDS.flatMap((id) => [
+        {
+          id: `reset-${RESET_DATE}-${id}-aperta`,
+          valve_id: id,
+          valve_label: "Bocchetta",
+          action: "APERTA",
+          operator: "Angelo",
+          at: OPENED_AT
+        },
+        {
+          id: `reset-${RESET_DATE}-${id}-chiusa`,
+          valve_id: id,
+          valve_label: "Bocchetta",
+          action: "CHIUSA",
+          operator: "Angelo",
+          at: CLOSED_AT
+        }
+      ]);
+    }
+
+    document.querySelector("#resetButton").addEventListener("click", () => {
+      const status = document.querySelector("#status");
+      const payload = {
+        updated_at: new Date().toISOString(),
+        valves: buildValves(),
+        history: buildHistory()
+      };
+
+      status.textContent = "Invio al foglio...";
+      fetch(ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        status.textContent = "Inviato. Ora apri l'app e aggiorna.";
+      }).catch(() => {
+        status.textContent = "Invio non riuscito.";
+      });
+    });
+  </script>
+</body>
+</html>
