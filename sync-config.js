@@ -1,4 +1,3 @@
 window.IRRIGAZIONE_SYNC = {
-  // Qui va l'URL della Web App Google dopo la pubblicazione.
-  endpoint: ""
+  endpoint: "https://script.google.com/macros/s/AKfycbwzkbkjM0yJLmvZU1VBm8_RjrCo0dM4HIhAXICma_8Ef-hklnP61YTieya2iYQuRUML/exec"
 };
