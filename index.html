@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="irrigazione.css?v=neon-1">
   <link rel="stylesheet" href="neon.css?v=7">
-  <link rel="stylesheet" href="next-state.css?v=3">
+  <link rel="stylesheet" href="next-state.css?v=4">
 </head>
 <body>
   <main class="app-shell">
@@ -36,6 +36,15 @@
         <p class="pressure-warning" id="pressureWarning" hidden>IMPIANTO SOTTO PRESSIONE</p>
         <p id="summary">Caricamento...</p>
         <p class="sync-status" id="syncStatus">Sync locale</p>
+      </div>
+    </section>
+
+    <section class="weather-advice" id="weatherAdvice" data-state="unknown" aria-label="Meteo irrigazione a pioggia">
+      <div class="weather-dot" aria-hidden="true"></div>
+      <div>
+        <p class="weather-label" id="weatherAdviceLabel">METEO PIOGGIA: CARICAMENTO</p>
+        <p class="weather-detail" id="weatherAdviceDetail">Leggo condizioni di Simeri Crichi...</p>
+        <p class="weather-metrics" id="weatherAdviceMetrics">--</p>
       </div>
     </section>
 
@@ -100,6 +109,7 @@
   <script src="history-all-valves.js"></script>
   <script src="next-state.js?v=1"></script>
   <script src="ui-neon.js?v=3"></script>
+  <script src="weather-advice.js?v=1"></script>
   <script>
     if ("serviceWorker" in navigator && location.protocol === "https:") {
       navigator.serviceWorker.register("sw.js");
