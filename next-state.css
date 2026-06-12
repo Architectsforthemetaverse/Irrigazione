@@ -147,9 +147,9 @@
   content: "";
   position: absolute;
   inset: -8px;
-  border: 2px dashed var(--open);
+  border: 4px dashed var(--open);
   border-radius: 50%;
-  animation: spray-spin 1.15s linear infinite;
+  animation: spray-spin 2.3s linear infinite;
   filter: drop-shadow(0 0 8px var(--open));
 }
 
