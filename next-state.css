@@ -146,7 +146,7 @@
 .state-open::after {
   content: "";
   position: absolute;
-  inset: 6px;
+  inset: 3px;
   border: 2px dashed var(--open);
   border-radius: 50%;
   animation: spray-spin 3s linear infinite;
