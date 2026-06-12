@@ -130,3 +130,19 @@
   color: var(--muted);
   font-size: 10px;
 }
+
+.state-open::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border: 2px dashed var(--open);
+  border-radius: 50%;
+  animation: spray-spin 1.15s linear infinite;
+  filter: drop-shadow(0 0 8px var(--open));
+}
+
+@keyframes spray-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
