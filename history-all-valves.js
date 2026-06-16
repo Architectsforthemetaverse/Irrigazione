@@ -1,6 +1,7 @@
 const FIELD_VALVE_IDS = DEFAULT_VALVES
   .filter((valve) => !isGeneralValve(valve))
   .map((valve) => valve.id);
+const MAX_CYCLE_SPAN_DAYS = 5;
 
 function renderHistory() {
   const cycles = getHistoryCycles();
@@ -60,11 +61,17 @@ function getHistoryCycles() {
   const sortedEvents = [...historyEvents]
     .filter((event) => event && event.at && event.action)
     .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+  const stateCompletionDateKey = getStateCompletionDateKey();
+  const stateCompletionEnd = stateCompletionDateKey ? endOfDayFromDateKey(stateCompletionDateKey) : null;
   const cycles = [];
   let currentCycle = null;
   let closedFieldValves = new Set();
 
   sortedEvents.forEach((event) => {
+    if (currentCycle && stateCompletionEnd && new Date(event.at).getTime() > stateCompletionEnd.getTime()) {
+      completeCurrentCycleFromState();
+    }
+
     if (!currentCycle) {
       if (event.action !== "APERTA") return;
       currentCycle = {
@@ -92,10 +99,45 @@ function getHistoryCycles() {
   });
 
   if (currentCycle) {
-    cycles.push(currentCycle);
+    if (stateCompletionEnd && new Date(currentCycle.startAt).getTime() <= stateCompletionEnd.getTime()) {
+      completeCurrentCycleFromState();
+    } else {
+      cycles.push(currentCycle);
+    }
   }
 
   return cycles;
+
+  function completeCurrentCycleFromState() {
+    if (!currentCycle) return;
+    currentCycle.complete = true;
+    currentCycle.endAt = stateCompletionEnd.toISOString();
+    cycles.push(currentCycle);
+    currentCycle = null;
+    closedFieldValves = new Set();
+  }
+}
+
+function getStateCompletionDateKey() {
+  const fieldDates = valves
+    .filter((valve) => !isGeneralValve(valve))
+    .map((valve) => normalizeDateKey(valve.ultima_irrigazione))
+    .filter(Boolean)
+    .sort();
+
+  if (fieldDates.length !== FIELD_VALVE_IDS.length) return null;
+
+  const first = new Date(`${fieldDates[0]}T00:00:00`);
+  const lastKey = fieldDates[fieldDates.length - 1];
+  const last = new Date(`${lastKey}T00:00:00`);
+  const spanDays = Math.floor((last - first) / 86400000) + 1;
+
+  return spanDays <= MAX_CYCLE_SPAN_DAYS ? lastKey : null;
+}
+
+function endOfDayFromDateKey(dateKey) {
+  const date = new Date(`${dateKey}T23:59:59`);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 function createCycleDayCards(cycle, options = {}) {
