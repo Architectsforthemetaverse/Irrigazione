@@ -2,6 +2,7 @@ const FIELD_VALVE_IDS = DEFAULT_VALVES
   .filter((valve) => !isGeneralValve(valve))
   .map((valve) => valve.id);
 const MAX_CYCLE_SPAN_DAYS = 5;
+const NEW_CYCLE_GAP_HOURS = 36;
 
 function renderHistory() {
   const cycles = getHistoryCycles();
@@ -61,15 +62,13 @@ function getHistoryCycles() {
   const sortedEvents = [...historyEvents]
     .filter((event) => event && event.at && event.action)
     .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
-  const stateCompletionDateKey = getStateCompletionDateKey();
-  const stateCompletionEnd = stateCompletionDateKey ? endOfDayFromDateKey(stateCompletionDateKey) : null;
   const cycles = [];
   let currentCycle = null;
   let closedFieldValves = new Set();
 
   sortedEvents.forEach((event) => {
-    if (currentCycle && stateCompletionEnd && new Date(event.at).getTime() > stateCompletionEnd.getTime()) {
-      completeCurrentCycleFromState();
+    if (currentCycle && shouldStartNewCycle(currentCycle, event)) {
+      finishCurrentCycle({ complete: true });
     }
 
     if (!currentCycle) {
@@ -78,44 +77,60 @@ function getHistoryCycles() {
         startAt: event.at,
         endAt: null,
         complete: false,
-        events: []
+        events: [],
+        lastAt: event.at
       };
       closedFieldValves = new Set();
     }
 
     currentCycle.events.push(event);
+    currentCycle.lastAt = event.at;
 
     if (event.action === "CHIUSA" && !isGeneralValveId(event.valve_id)) {
       closedFieldValves.add(event.valve_id);
     }
 
     if (!currentCycle.complete && closedFieldValves.size >= FIELD_VALVE_IDS.length) {
-      currentCycle.complete = true;
-      currentCycle.endAt = event.at;
-      cycles.push(currentCycle);
-      currentCycle = null;
-      closedFieldValves = new Set();
+      finishCurrentCycle({ complete: true, endAt: event.at });
     }
   });
 
   if (currentCycle) {
-    if (stateCompletionEnd && new Date(currentCycle.startAt).getTime() <= stateCompletionEnd.getTime()) {
-      completeCurrentCycleFromState();
-    } else {
-      cycles.push(currentCycle);
-    }
+    const completeByState = stateCompletionFallsInCycle(currentCycle);
+    const completeByPast = isPastCycle(currentCycle) && hasFieldClosure(currentCycle);
+    finishCurrentCycle({ complete: completeByState || completeByPast });
   }
 
   return cycles;
 
-  function completeCurrentCycleFromState() {
+  function finishCurrentCycle(options = {}) {
     if (!currentCycle) return;
-    currentCycle.complete = true;
-    currentCycle.endAt = stateCompletionEnd.toISOString();
+    currentCycle.complete = Boolean(options.complete);
+    currentCycle.endAt = options.endAt || getCycleLastAt(currentCycle);
     cycles.push(currentCycle);
     currentCycle = null;
     closedFieldValves = new Set();
   }
+}
+
+function shouldStartNewCycle(cycle, event) {
+  if (event.action !== "APERTA") return false;
+  const previous = new Date(getCycleLastAt(cycle));
+  const next = new Date(event.at);
+  const gapHours = (next - previous) / 3600000;
+  const spanDays = cycleSpanDays(cycle.startAt, event.at);
+  return gapHours > NEW_CYCLE_GAP_HOURS || spanDays > MAX_CYCLE_SPAN_DAYS;
+}
+
+function stateCompletionFallsInCycle(cycle) {
+  const stateCompletionDateKey = getStateCompletionDateKey();
+  if (!stateCompletionDateKey) return false;
+
+  const start = startOfDay(new Date(cycle.startAt));
+  const end = startOfDay(new Date(getCycleLastAt(cycle)));
+  const completion = startOfDay(new Date(`${stateCompletionDateKey}T00:00:00`));
+
+  return completion.getTime() >= start.getTime() && completion.getTime() >= end.getTime();
 }
 
 function getStateCompletionDateKey() {
@@ -135,9 +150,22 @@ function getStateCompletionDateKey() {
   return spanDays <= MAX_CYCLE_SPAN_DAYS ? lastKey : null;
 }
 
-function endOfDayFromDateKey(dateKey) {
-  const date = new Date(`${dateKey}T23:59:59`);
-  return Number.isNaN(date.getTime()) ? null : date;
+function isPastCycle(cycle) {
+  return dateKeyFromIso(getCycleLastAt(cycle)) < todayKey();
+}
+
+function hasFieldClosure(cycle) {
+  return cycle.events.some((event) => event.action === "CHIUSA" && !isGeneralValveId(event.valve_id));
+}
+
+function getCycleLastAt(cycle) {
+  return cycle.lastAt || cycle.events[cycle.events.length - 1]?.at || cycle.startAt;
+}
+
+function cycleSpanDays(startAt, endAt) {
+  const start = startOfDay(new Date(startAt));
+  const end = startOfDay(new Date(endAt));
+  return Math.floor((end - start) / 86400000) + 1;
 }
 
 function createCycleDayCards(cycle, options = {}) {
