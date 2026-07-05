@@ -33,21 +33,27 @@ function renderHistory() {
 
 function renderPreviousCycles(previousCycles) {
   historyCount.textContent = "Cicli precedenti";
+  const pastDayKeys = getPastHistoryDayKeys();
+  const content = [createHistoryNavButton("TORNA AL CICLO ATTUALE", renderHistory)];
 
-  if (previousCycles.length === 0) {
-    const backButton = createHistoryNavButton("TORNA AL CICLO ATTUALE", renderHistory);
+  if (previousCycles.length > 0) {
+    const groups = groupCyclesByMonth(previousCycles);
+    content.push(...groups.map(createCycleMonthGroup));
+  }
+
+  if (pastDayKeys.length > 0) {
+    content.push(...groupDayKeysByMonth(pastDayKeys).map((group) => createHistoryDaysGroup(group, previousCycles)));
+  }
+
+  if (content.length === 1) {
     const empty = document.createElement("div");
     empty.className = "history-empty";
-    empty.textContent = "Nessun ciclo precedente archiviato";
-    historyList.replaceChildren(backButton, empty);
+    empty.textContent = "Nessuna data precedente archiviata";
+    historyList.replaceChildren(...content, empty);
     return;
   }
 
-  const groups = groupCyclesByMonth(previousCycles);
-  historyList.replaceChildren(
-    createHistoryNavButton("TORNA AL CICLO ATTUALE", renderHistory),
-    ...groups.map(createCycleMonthGroup)
-  );
+  historyList.replaceChildren(...content);
 }
 
 function renderArchivedCycle(cycle, previousCycles) {
@@ -55,6 +61,15 @@ function renderArchivedCycle(cycle, previousCycles) {
   historyList.replaceChildren(
     createHistoryNavButton("TORNA AI PRECEDENTI", () => renderPreviousCycles(previousCycles)),
     ...createCycleDayCards(cycle, { fiveDays: false })
+  );
+}
+
+function renderArchivedDay(dayKey, previousCycles) {
+  const day = new Date(`${dayKey}T00:00:00`);
+  historyCount.textContent = `Giorno ${formatShortDate(day)}`;
+  historyList.replaceChildren(
+    createHistoryNavButton("TORNA AI PRECEDENTI", () => renderPreviousCycles(previousCycles)),
+    createHistoryDayCard(day, historyEvents)
   );
 }
 
@@ -257,6 +272,37 @@ function groupCyclesByMonth(cycles) {
   return groups;
 }
 
+function getPastHistoryDayKeys() {
+  const cycles = getHistoryCycles();
+  const currentCycle = cycles.find((cycle) => !cycle.complete) || null;
+  const limitKey = currentCycle ? dateKeyFromIso(currentCycle.startAt) : todayKey();
+
+  return [...new Set(
+    historyEvents
+      .filter((event) => event && event.at && dateKeyFromIso(event.at) < limitKey)
+      .map((event) => dateKeyFromIso(event.at))
+      .filter(Boolean)
+  )].sort().reverse();
+}
+
+function groupDayKeysByMonth(dayKeys) {
+  const groups = [];
+  const byKey = new Map();
+
+  dayKeys.forEach((dayKey) => {
+    const date = new Date(`${dayKey}T00:00:00`);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    if (!byKey.has(key)) {
+      const group = { key, title: `DATE ANTECEDENTI - ${formatMonthTitle(date)}`, dayKeys: [] };
+      byKey.set(key, group);
+      groups.push(group);
+    }
+    byKey.get(key).dayKeys.push(dayKey);
+  });
+
+  return groups;
+}
+
 function createCycleMonthGroup(group) {
   const section = document.createElement("section");
   const title = document.createElement("h3");
@@ -283,6 +329,31 @@ function createCycleMonthGroup(group) {
   return section;
 }
 
+function createHistoryDaysGroup(group, previousCycles) {
+  const section = document.createElement("section");
+  const title = document.createElement("h3");
+  const grid = document.createElement("div");
+
+  section.className = "history-month";
+  title.textContent = group.title;
+  grid.className = "cycle-grid";
+
+  group.dayKeys.forEach((dayKey) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "cycle-card";
+    button.innerHTML = `
+      <strong>${formatDayShortLabel(dayKey)}</strong>
+      <span>${formatDayFullLabel(dayKey)}</span>
+    `;
+    button.addEventListener("click", () => renderArchivedDay(dayKey, previousCycles));
+    grid.appendChild(button);
+  });
+
+  section.append(title, grid);
+  return section;
+}
+
 function formatCycleShortLabel(cycle) {
   const start = new Date(cycle.startAt);
   const end = new Date(cycle.endAt || cycle.events[cycle.events.length - 1].at);
@@ -294,6 +365,18 @@ function formatCycleFullLabel(cycle) {
   const end = new Date(cycle.endAt || cycle.events[cycle.events.length - 1].at);
   const month = end.toLocaleDateString("it-IT", { month: "long" });
   return `${start.getDate()}-${end.getDate()} ${month}`;
+}
+
+function formatDayShortLabel(dayKey) {
+  return String(new Date(`${dayKey}T00:00:00`).getDate());
+}
+
+function formatDayFullLabel(dayKey) {
+  return new Date(`${dayKey}T00:00:00`).toLocaleDateString("it-IT", {
+    weekday: "short",
+    day: "2-digit",
+    month: "long"
+  });
 }
 
 function formatMonthTitle(date) {
