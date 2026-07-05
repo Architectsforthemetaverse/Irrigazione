@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="irrigazione.css?v=neon-1">
   <link rel="stylesheet" href="neon.css?v=7">
   <link rel="stylesheet" href="next-state.css?v=10">
+  <link rel="stylesheet" href="piano-aperture.css?v=1">
 </head>
 <body>
   <main class="app-shell">
@@ -46,6 +47,12 @@
         <p class="weather-detail" id="weatherAdviceDetail">Leggo condizioni di Simeri Crichi...</p>
         <p class="weather-metrics" id="weatherAdviceMetrics">--</p>
       </div>
+    </section>
+
+    <section class="plan-card" aria-label="Prossime aperture consigliate">
+      <p class="plan-title">PROSSIME APERTURE</p>
+      <div class="plan-list" id="planList">Calcolo dallo storico...</div>
+      <p class="plan-rain" id="planRain" hidden></p>
     </section>
 
     <section class="map-stage" aria-label="Mappa irrigazione">
@@ -111,6 +118,7 @@
   <script src="smart-rules.js?v=1"></script>
   <script src="ui-neon.js?v=4"></script>
   <script src="weather-advice.js?v=1"></script>
+  <script src="piano-aperture.js?v=1"></script>
   <script>
     if ("serviceWorker" in navigator && location.protocol === "https:") {
       navigator.serviceWorker.register("sw.js");
