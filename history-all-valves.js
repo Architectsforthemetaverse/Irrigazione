@@ -1,7 +1,15 @@
 const FIELD_VALVE_IDS = DEFAULT_VALVES
   .filter((valve) => !isGeneralValve(valve))
   .map((valve) => valve.id);
-const MAX_STOP_DAYS_BETWEEN_CYCLE_EVENTS = 4;
+const DECLARED_HISTORY_CYCLES = [
+  { start: "2026-05-28", end: "2026-06-03", complete: true },
+  { start: "2026-06-06", end: "2026-06-12", complete: true },
+  { start: "2026-06-16", end: "2026-06-20", complete: true },
+  { start: "2026-06-27", end: "2026-06-29", complete: true },
+  { start: "2026-07-01", end: "2026-07-01", complete: true },
+  { start: "2026-07-05", end: null, complete: false }
+];
+const FALLBACK_STOP_DAYS_BETWEEN_CYCLE_EVENTS = 4;
 
 function renderHistory() {
   const cycles = getHistoryCycles();
@@ -51,10 +59,15 @@ function renderPreviousCycles(previousCycles) {
 }
 
 function renderArchivedCycle(cycle, previousCycles) {
+  const cards = createCycleDayCards(cycle);
+  const empty = document.createElement("div");
+  empty.className = "history-empty";
+  empty.textContent = "Nessun movimento salvato per questo ciclo";
+
   historyCount.textContent = `Ciclo ${formatCycleFullLabel(cycle)}`;
   historyList.replaceChildren(
     createHistoryNavButton("TORNA AI PRECEDENTI", () => renderPreviousCycles(previousCycles)),
-    ...createCycleDayCards(cycle)
+    ...(cards.length ? cards : [empty])
   );
 }
 
@@ -62,6 +75,32 @@ function getHistoryCycles() {
   const sortedEvents = [...historyEvents]
     .filter((event) => event && event.at && event.action)
     .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+  const declaredCycles = createDeclaredCycles(sortedEvents);
+  const unassignedEvents = sortedEvents.filter((event) => !findDeclaredCycleForEvent(event));
+  const fallbackCycles = createFallbackCycles(unassignedEvents);
+
+  return [...declaredCycles, ...fallbackCycles]
+    .filter((cycle) => cycle.events.length > 0 || cycle.declared)
+    .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
+}
+
+function createDeclaredCycles(sortedEvents) {
+  return DECLARED_HISTORY_CYCLES.map((config) => {
+    const events = sortedEvents.filter((event) => isEventInDeclaredCycle(event, config));
+    const lastAt = events.length ? events[events.length - 1].at : declaredCycleEndAt(config);
+
+    return {
+      startAt: `${config.start}T00:00:00`,
+      endAt: config.end ? `${config.end}T23:59:59` : lastAt,
+      complete: config.complete,
+      declared: true,
+      events,
+      lastAt
+    };
+  });
+}
+
+function createFallbackCycles(sortedEvents) {
   const cycles = [];
   let currentCycle = null;
 
@@ -103,12 +142,26 @@ function getHistoryCycles() {
   }
 }
 
+function findDeclaredCycleForEvent(event) {
+  return DECLARED_HISTORY_CYCLES.find((cycle) => isEventInDeclaredCycle(event, cycle));
+}
+
+function isEventInDeclaredCycle(event, cycle) {
+  const key = dateKeyFromIso(event.at);
+  const end = cycle.end || todayKey();
+  return key >= cycle.start && key <= end;
+}
+
+function declaredCycleEndAt(cycle) {
+  return `${cycle.end || todayKey()}T23:59:59`;
+}
+
 function shouldStartNewCycle(cycle, event) {
   const previous = new Date(getCycleLastAt(cycle));
   const next = new Date(event.at);
   const gapDays = Math.floor((startOfDay(next) - startOfDay(previous)) / 86400000);
   const stopDays = Math.max(0, gapDays - 1);
-  return stopDays > MAX_STOP_DAYS_BETWEEN_CYCLE_EVENTS;
+  return stopDays > FALLBACK_STOP_DAYS_BETWEEN_CYCLE_EVENTS;
 }
 
 function isCycleComplete(cycle) {
@@ -242,14 +295,21 @@ function createCycleMonthGroup(group) {
 function formatCycleShortLabel(cycle) {
   const start = new Date(cycle.startAt);
   const end = new Date(cycle.endAt || cycle.events[cycle.events.length - 1].at);
-  return `${start.getDate()}-${end.getDate()}`;
+  if (start.getMonth() === end.getMonth()) {
+    return `${start.getDate()}-${end.getDate()}`;
+  }
+  return `${start.getDate()}/${start.getMonth() + 1}-${end.getDate()}/${end.getMonth() + 1}`;
 }
 
 function formatCycleFullLabel(cycle) {
   const start = new Date(cycle.startAt);
   const end = new Date(cycle.endAt || cycle.events[cycle.events.length - 1].at);
-  const month = end.toLocaleDateString("it-IT", { month: "long" });
-  return `${start.getDate()}-${end.getDate()} ${month}`;
+  const endMonth = end.toLocaleDateString("it-IT", { month: "long" });
+  if (start.getMonth() !== end.getMonth()) {
+    const startMonth = start.toLocaleDateString("it-IT", { month: "long" });
+    return `${start.getDate()} ${startMonth} - ${end.getDate()} ${endMonth}`;
+  }
+  return `${start.getDate()}-${end.getDate()} ${endMonth}`;
 }
 
 function formatMonthTitle(date) {
