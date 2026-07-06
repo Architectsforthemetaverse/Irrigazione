@@ -9,6 +9,8 @@
 
   const planList = document.querySelector("#planList");
   const planRain = document.querySelector("#planRain");
+  const planPanel = document.querySelector("#planPanel");
+  const planMenuButton = document.querySelector("#planMenuButton");
   if (!planList) return;
 
   function fieldOpenEvents() {
@@ -245,6 +247,15 @@
     originalRender();
     renderPlan();
   };
+
+  if (planPanel && planMenuButton) {
+    planMenuButton.addEventListener("click", () => {
+      const willOpen = planPanel.hidden;
+      planPanel.hidden = !willOpen;
+      planMenuButton.setAttribute("aria-expanded", String(willOpen));
+      if (willOpen) renderPlan();
+    });
+  }
 
   renderPlan();
   loadRainAdvice();
