@@ -117,8 +117,9 @@ function isCycleComplete(cycle) {
       .filter((event) => event.action === "CHIUSA" && !isGeneralValveId(event.valve_id))
       .map((event) => event.valve_id)
   );
+  const endedBeforeToday = dateKeyFromIso(getCycleLastAt(cycle)) < todayKey();
 
-  return closedFieldValves.size >= FIELD_VALVE_IDS.length;
+  return closedFieldValves.size >= FIELD_VALVE_IDS.length || (endedBeforeToday && closedFieldValves.size > 0);
 }
 
 function getCycleLastAt(cycle) {
