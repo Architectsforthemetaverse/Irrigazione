@@ -8,6 +8,10 @@
   gap: 10px;
 }
 
+.plan-card[hidden] {
+  display: none;
+}
+
 .plan-title {
   margin: 0;
   font-size: 12px;
