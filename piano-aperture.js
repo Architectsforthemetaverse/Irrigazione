@@ -9,6 +9,7 @@
 
   const planList = document.querySelector("#planList");
   const planRain = document.querySelector("#planRain");
+  const planCard = document.querySelector("#planCard");
   if (!planList) return;
 
   function fieldOpenEvents() {
@@ -245,6 +246,24 @@
     originalRender();
     renderPlan();
   };
+
+  if (planCard) {
+    const togglePlan = () => {
+      const expanded = !planCard.classList.contains("is-expanded");
+      planCard.classList.toggle("is-expanded", expanded);
+      planCard.setAttribute("aria-expanded", String(expanded));
+    };
+
+    planCard.addEventListener("click", (event) => {
+      if (event.target.closest(".plan-chip")) return;
+      togglePlan();
+    });
+    planCard.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      togglePlan();
+    });
+  }
 
   renderPlan();
   loadRainAdvice();
