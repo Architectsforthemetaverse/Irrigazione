@@ -1,7 +1,7 @@
 const FIELD_VALVE_IDS = DEFAULT_VALVES
   .filter((valve) => !isGeneralValve(valve))
   .map((valve) => valve.id);
-const NEW_CYCLE_GAP_DAYS = 2;
+const MAX_STOP_DAYS_BETWEEN_CYCLE_EVENTS = 4;
 
 function renderHistory() {
   const cycles = getHistoryCycles();
@@ -107,7 +107,8 @@ function shouldStartNewCycle(cycle, event) {
   const previous = new Date(getCycleLastAt(cycle));
   const next = new Date(event.at);
   const gapDays = Math.floor((startOfDay(next) - startOfDay(previous)) / 86400000);
-  return gapDays >= NEW_CYCLE_GAP_DAYS;
+  const stopDays = Math.max(0, gapDays - 1);
+  return stopDays > MAX_STOP_DAYS_BETWEEN_CYCLE_EVENTS;
 }
 
 function isCycleComplete(cycle) {
