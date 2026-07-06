@@ -1,19 +1,21 @@
 .plan-card {
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 8px 12px 9px;
-  background: rgba(9, 26, 22, 0.72);
-  box-shadow: var(--shadow), inset 0 0 18px rgba(92, 229, 116, 0.05);
+  border: 1px solid rgba(127, 232, 142, 0.16);
+  border-radius: 12px;
+  padding: 5px 9px 6px;
+  margin-top: -6px;
+  margin-bottom: -6px;
+  background: rgba(4, 16, 14, 0.38);
+  box-shadow: none;
   display: grid;
-  gap: 5px;
+  gap: 3px;
 }
 
 .plan-title {
   margin: 0;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.14em;
-  color: var(--mint);
+  color: rgba(66, 233, 192, 0.82);
 }
 
 .plan-list {
@@ -32,11 +34,11 @@
   grid-template-columns: 52px 1fr;
   align-items: center;
   gap: 8px;
-  min-height: 31px;
-  padding: 4px 8px;
-  border: 1px solid rgba(127, 232, 142, 0.16);
-  border-radius: 12px;
-  background: rgba(4, 16, 14, 0.55);
+  min-height: 24px;
+  padding: 2px 6px;
+  border: 1px solid rgba(255, 138, 24, 0.28);
+  border-radius: 9px;
+  background: rgba(4, 16, 14, 0.24);
 }
 
 .plan-row:nth-child(n+2) {
@@ -44,12 +46,12 @@
 }
 
 .plan-row.is-today {
-  border-color: rgba(255, 138, 24, 0.55);
-  box-shadow: inset 0 0 18px rgba(255, 138, 24, 0.08);
+  border-color: rgba(255, 138, 24, 0.45);
+  box-shadow: none;
 }
 
 .plan-when {
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--muted);
@@ -66,13 +68,13 @@
 }
 
 .plan-chip {
-  min-width: 28px;
-  padding: 2px 7px;
-  border: 1px solid var(--line);
+  min-width: 25px;
+  padding: 1px 6px;
+  border: 1px solid rgba(127, 232, 142, 0.34);
   border-radius: 999px;
   background: transparent;
   color: var(--text);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -101,7 +103,7 @@
 
 @media (max-width: 420px) {
   .plan-row {
-    grid-template-columns: 48px 1fr;
+    grid-template-columns: 44px 1fr;
   }
 
   .plan-detail {
